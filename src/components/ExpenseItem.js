@@ -1,36 +1,48 @@
 import React, { useContext } from 'react';
 import { TiDelete } from 'react-icons/ti';
 import { AppContext } from '../context/AppContext';
+import './ExpenseItem.css';
 
-const ExpenseItem = (props) => {
-    const { dispatch } = useContext(AppContext);
+const ExpenseItem = ({ id, name, cost }) => {
+    const { dispatch, currency } = useContext(AppContext);
 
     const handleDeleteExpense = () => {
         dispatch({
             type: 'DELETE_EXPENSE',
-            payload: props.id,
+            payload: id,
         });
     };
 
-    const increaseAllocation = (name) => {
-        const expense = {
-            name: name,
-            cost: 10,
-        };
-
+    const handleModifyExpense = (amount) => {
         dispatch({
-            type: 'ADD_EXPENSE',
-            payload: expense
+            type: amount > 0 ? 'ADD_EXPENSE' : 'RED_EXPENSE',
+            payload: {
+                id,
+                name,
+                cost: Math.abs(amount),
+            }
         });
-
-    }
+    };
 
     return (
         <tr>
-        <td>{props.name}</td>
-        <td>£{props.cost}</td>
-        <td><button onClick={event=> increaseAllocation(props.name)}>+</button></td>
-        <td><TiDelete size='1.5em' onClick={handleDeleteExpense}></TiDelete></td>
+            <td>{name}</td>
+            <td>{currency}{cost}</td>
+            <td className="text-center">
+                <button className="btn btn-link" onClick={() => handleModifyExpense(10)}>
+                    <img src={`${process.env.PUBLIC_URL}/Bplus.png`} alt="Increase" />
+                </button>
+            </td>
+            <td className="text-center">
+                <button className="btn btn-link" onClick={() => handleModifyExpense(-10)} disabled={cost <= 10}>
+                    <img src={`${process.env.PUBLIC_URL}/Bminus.png`} alt="Decrease" />
+                </button>
+            </td>
+            <td className="text-center">
+                <button className="btn btn-link text-danger" onClick={handleDeleteExpense}>
+                    <TiDelete size='1.5em' />
+                </button>
+            </td>
         </tr>
     );
 };
